@@ -61,6 +61,11 @@ view: orders {
     sql: ${TABLE}.returned_at ;;
   }
 
+  dimension: is_order_returned {
+    type: yesno
+    sql: ${TABLE}.returned_at is not null ;;
+  }
+
   dimension_group: shipped {
     type: time
     timeframes: [

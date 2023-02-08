@@ -20,6 +20,11 @@ include: "/views/*.view.lkml"                # include all views in the views/ f
 # }
 
 explore: order_items {
+  label: "Order Item Information"
+  always_filter: {
+    filters: [users.age: ">=18"]
+    filters: [orders.is_order_returned: "Yes"]
+  }
   join: orders {
     relationship: many_to_one
     type: left_outer
@@ -37,5 +42,37 @@ explore: order_items {
     type: left_outer
     relationship: many_to_one
     sql_on: ${order_items.user_id} = ${users.id} ;;
+  }
+}
+
+datagroup: products_datagroup {
+  sql_trigger:  select DATE(NOW()) ;;
+  max_cache_age: "4 hours"
+}
+
+explore: products {
+  label: "Product Information"
+  persist_with: products_datagroup
+  fields: [inventory_items*, -inventory_items.product_sku, order_items*]
+  sql_always_where: ${inventory_items.product_name} <> "steve" ;;
+  join: inventory_items {
+    relationship: one_to_one
+    type: inner
+    sql_on: ${products.id} = ${inventory_items.product_id} ;;
+  }
+
+  join: order_items{
+    relationship: one_to_one
+    type: inner
+    sql_on: ${inventory_items.id} = ${order_items.inventory_item_id} ;;
+  }
+}
+
+explore: inventory_items {
+  label: "Inventory Item Information"
+  join: distribution_centers {
+    relationship: one_to_many
+    type: left_outer
+    sql_on: ${inventory_items.product_distribution_center_id} = ${distribution_centers.id} ;;
   }
 }
