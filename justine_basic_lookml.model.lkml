@@ -24,6 +24,7 @@ explore: order_items {
   always_filter: {
     filters: [users.age: ">=18"]
     filters: [orders.is_order_returned: "Yes"]
+    filters: [orders.delivered_date: "-NULL"]
   }
   join: orders {
     relationship: many_to_one
@@ -43,6 +44,12 @@ explore: order_items {
     relationship: many_to_one
     sql_on: ${order_items.user_id} = ${users.id} ;;
   }
+  join: products {
+    view_label: "Products"
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${products.id} = ${inventory_items.product_id} ;;
+  }
 }
 
 datagroup: products_datagroup {
@@ -56,14 +63,14 @@ explore: products {
   fields: [inventory_items*, -inventory_items.product_sku, order_items*]
   sql_always_where: ${inventory_items.product_name} <> "steve" ;;
   join: inventory_items {
-    relationship: one_to_one
-    type: inner
+    relationship: many_to_one
+    type: left_outer
     sql_on: ${products.id} = ${inventory_items.product_id} ;;
   }
 
   join: order_items{
-    relationship: one_to_one
-    type: inner
+    relationship: many_to_one
+    type: left_outer
     sql_on: ${inventory_items.id} = ${order_items.inventory_item_id} ;;
   }
 }
@@ -74,5 +81,11 @@ explore: inventory_items {
     relationship: one_to_many
     type: left_outer
     sql_on: ${inventory_items.product_distribution_center_id} = ${distribution_centers.id} ;;
+  }
+
+  join: products {
+    relationship: many_to_many
+    type: left_outer
+    sql_on: ${products.id} = ${inventory_items.product_id} ;;
   }
 }

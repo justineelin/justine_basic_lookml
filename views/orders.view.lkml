@@ -23,6 +23,16 @@ view: orders {
     sql: ${TABLE}.created_at ;;
   }
 
+
+  dimension: days_between_user_creation_and_first_order {
+    sql: date_diff(${delivered_date}, ${users.created_date}, day) ;;
+  }
+
+  dimension: total_time_to_ship_and_deliver {
+    sql: date_diff(${delivered_date}, ${shipped_date}, day) + 1 ;;
+  }
+
+
   dimension_group: delivered {
     type: time
     timeframes: [
@@ -63,7 +73,7 @@ view: orders {
 
   dimension: is_order_returned {
     type: yesno
-    sql: ${TABLE}.returned_at is not null ;;
+    sql: ${TABLE}.returned_at is null ;;
   }
 
   dimension_group: shipped {

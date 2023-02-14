@@ -14,6 +14,12 @@ view: inventory_items {
     sql: ${TABLE}.cost ;;
   }
 
+  measure: average_cost {
+    type: average
+    value_format_name:usd_0
+    sql: ${cost} ;;
+  }
+
   dimension_group: created {
     type: time
     timeframes: [
@@ -63,6 +69,18 @@ view: inventory_items {
   dimension: product_retail_price {
     type: number
     sql: ${TABLE}.product_retail_price ;;
+  }
+
+  measure: average_retail_price {
+    type: average
+    value_format_name:usd_0
+    sql: ${product_retail_price} ;;
+  }
+
+  measure: average_profit {
+    type: average
+    value_format_name: usd_0
+    sql:  ${product_retail_price} - ${cost} ;;
   }
 
   dimension: product_sku {
